@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<string name="Hello">Hello World, Click Me!</string>
+	<string name="ApplicationName">Healthy air</string>
+	<string name="BluetoothNotSupported">Упс! Bluetooth не поддерживается.</string>
+	<string name="BluetoothOff">Вам необходимо включить bluetooth.</string>
+	<string name="Warning">Предупреждение</string>
+	<string name="Error">Ошибка</string>
+	<string name="Fatal">Критическая ошибка!</string>
+</resources>

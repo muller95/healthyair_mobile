@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<string name="ApplicationName">Healthy air</string>
+	<string name="BluetoothNotSupported">Ooops! Bluetooth is not supported.</string>
+	<string name="BluetoothOff">You need to switch on bluetooth.</string>
+	<string name="Warning">Warning</string>
+	<string name="Error">Error</string>
+	<string name="Fatal">Fatal error!</string>
+</resources>
