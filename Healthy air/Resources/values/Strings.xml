@@ -6,4 +6,5 @@
 	<string name="Warning">Warning</string>
 	<string name="Error">Error</string>
 	<string name="Fatal">Fatal error!</string>
+	<string name="Updage">Update</string>
 </resources>
