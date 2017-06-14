@@ -107,6 +107,12 @@ namespace Healthy_air
 			// aapt resource value: 0x7f040000
 			public const int ApplicationName = 2130968576;
 			
+			// aapt resource value: 0x7f040008
+			public const int BluetoothAddress = 2130968584;
+			
+			// aapt resource value: 0x7f040007
+			public const int BluetoothName = 2130968583;
+			
 			// aapt resource value: 0x7f040001
 			public const int BluetoothNotSupported = 2130968577;
 			
@@ -122,8 +128,8 @@ namespace Healthy_air
 			// aapt resource value: 0x7f040006
 			public const int Updage = 2130968582;
 			
-			// aapt resource value: 0x7f040007
-			public const int Update = 2130968583;
+			// aapt resource value: 0x7f040009
+			public const int Update = 2130968585;
 			
 			// aapt resource value: 0x7f040003
 			public const int Warning = 2130968579;

@@ -3,9 +3,11 @@ using Android.Bluetooth;
 using Android.Widget;
 using Android.OS;
 using Android.Content;
+using Android.Views;
+
 using System;
 using System.Collections.Generic;
-using Android.Views;
+
 
 namespace Healthy_air
 {
@@ -57,10 +59,12 @@ namespace Healthy_air
 		private List<DiscoveredBluetoothDevice> devices;
 
 		public BluetoothListAdapter(Activity activity, List<DiscoveredBluetoothDevice> devices)
-			:base()
+			: base()
 		{
 			this.activity = activity;
 			this.devices = devices;
+			NamePrefix = "";
+			AddressPrefix = "";
 		}
 
 		public override DiscoveredBluetoothDevice this[int position] => devices[position];
@@ -80,8 +84,8 @@ namespace Healthy_air
 				view = activity.LayoutInflater.Inflate(Resource.Layout.BluetoothListViewRow, parent, false);
 
 			DiscoveredBluetoothDevice device = this[position];
-			view.FindViewById<TextView>(Resource.Id.Name).Text = device.Name;
-			view.FindViewById<TextView>(Resource.Id.Address).Text = device.Address;
+			view.FindViewById<TextView>(Resource.Id.Name).Text = String.Format("{0} {1}", NamePrefix, device.Name);
+			view.FindViewById<TextView>(Resource.Id.Address).Text = String.Format("{0} {1}", AddressPrefix, device.Address);
 
 			return view;
 		}
@@ -90,6 +94,14 @@ namespace Healthy_air
 		{
 			devices.Add(device);
 		}
+
+		public void Clear()
+		{
+			devices.Clear();
+		}
+
+		public string NamePrefix { get; set; }
+		public string AddressPrefix { get; set; }
 	}
 
 	[Activity(Label = "Healthy air", MainLauncher = true, Icon = "@drawable/icon")]
@@ -98,7 +110,6 @@ namespace Healthy_air
 		const int RequestEnableBt = 1;
 		BluetoothAdapter adapter;
 		BluetoothReceiver receiver;
-		Dictionary<string, BluetoothDevice> devices;
 		ListView bluetoothListView;
 		BluetoothListAdapter bluetoothListAdapter;
 
@@ -110,9 +121,14 @@ namespace Healthy_air
 
 		private void OnBluetoothDeviceDiscovered(object sender, BluetoothDeviceDiscoveredEventArgs args)
 		{
-			devices.Add(args.Device.Address, args.Device);
 			bluetoothListAdapter.Add(new DiscoveredBluetoothDevice(args.Device.Name, args.Device.Address));
 			bluetoothListView.Adapter = bluetoothListAdapter;
+		}
+
+		private void EnableBluetooth()
+		{
+			Intent enableBtIntent = new Intent(BluetoothAdapter.ActionRequestEnable);
+			StartActivityForResult(enableBtIntent, RequestEnableBt);
 		}
 
 		protected void ShowMessage(string message, MessageType type)
@@ -133,8 +149,6 @@ namespace Healthy_air
 			base.OnActivityResult(requestCode, resultCode, data);
 			if (resultCode == Result.Canceled)
 				ShowMessage(GetString(Resource.String.BluetoothOff), MessageType.Warning);
-			else
-				adapter = null;
 		}
 
 		protected override void OnCreate(Bundle bundle)
@@ -151,14 +165,11 @@ namespace Healthy_air
 
 
 			if (!adapter.IsEnabled)
-			{
-				Intent enableBtIntent = new Intent(BluetoothAdapter.ActionRequestEnable);
-				StartActivityForResult(enableBtIntent, RequestEnableBt);
-			}
+				EnableBluetooth();
 
-			devices = new Dictionary<string, BluetoothDevice>();
-			
 			SetContentView(Resource.Layout.Main);
+
+			FindViewById<Button>(Resource.Id.buttonUpdate).Click += ButtonUpdateOnClick;
 		}
 
 		protected override void OnResume()
@@ -167,34 +178,52 @@ namespace Healthy_air
 
 			bluetoothListView = FindViewById<ListView>(Resource.Id.bluetoothListView);
 			bluetoothListAdapter = new BluetoothListAdapter(this, new List<DiscoveredBluetoothDevice>());
+			bluetoothListAdapter.NamePrefix = GetString(Resource.String.BluetoothName);
+			bluetoothListAdapter.AddressPrefix = GetString(Resource.String.BluetoothAddress);
 			bluetoothListView.Adapter = bluetoothListAdapter;
 
-			if (adapter != null)
+			if (!adapter.IsEnabled)
+				return;
+
+			if (adapter.IsDiscovering)
 			{
-				if (adapter.IsDiscovering)
-				{
-					adapter.CancelDiscovery();
-				}
-				bool started = adapter.StartDiscovery();
-				receiver = new BluetoothReceiver();
-				receiver.BluetoothDeviceDiscovered += OnBluetoothDeviceDiscovered;
-				IntentFilter filter = new IntentFilter();
-				filter.AddAction(BluetoothDevice.ActionFound);
-				filter.AddAction(BluetoothAdapter.ActionDiscoveryStarted);
-				filter.AddAction(BluetoothAdapter.ActionDiscoveryFinished);
-				this.RegisterReceiver(receiver, filter);
+				adapter.CancelDiscovery();
 			}
+			bool started = adapter.StartDiscovery();
+			receiver = new BluetoothReceiver();
+			receiver.BluetoothDeviceDiscovered += OnBluetoothDeviceDiscovered;
+			IntentFilter filter = new IntentFilter();
+			filter.AddAction(BluetoothDevice.ActionFound);
+			this.RegisterReceiver(receiver, filter);
+
 		}
 
 		protected override void OnPause()
 		{
 			base.OnPause();
-			if (adapter != null)
-			{
-				if (adapter.IsDiscovering)
-					adapter.CancelDiscovery();
-				this.UnregisterReceiver(receiver);
-			}
+			if (!adapter.IsEnabled)
+				return;
+
+			if (adapter.IsDiscovering)
+				adapter.CancelDiscovery();
+			this.UnregisterReceiver(receiver);
+
+		}
+
+		public void ButtonUpdateOnClick(object sender, EventArgs args)
+		{
+			if (!adapter.IsEnabled)
+				EnableBluetooth();
+
+			if (!adapter.IsEnabled)
+				return;
+
+			if (adapter.IsDiscovering)
+				adapter.CancelDiscovery();
+
+			bluetoothListAdapter.Clear();
+			bluetoothListView.Adapter = bluetoothListAdapter;
+			adapter.StartDiscovery();
 		}
 	}
 }

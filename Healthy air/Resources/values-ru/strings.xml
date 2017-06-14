@@ -7,4 +7,6 @@
 	<string name="Error">Ошибка</string>
 	<string name="Fatal">Критическая ошибка!</string>
 	<string name="Update">Обновить</string>
+	<string name="BluetoothName">Имя:</string>
+	<string name="BluetoothAddress">Адрес:</string>
 </resources>

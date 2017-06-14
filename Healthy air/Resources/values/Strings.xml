@@ -7,4 +7,6 @@
 	<string name="Error">Error</string>
 	<string name="Fatal">Fatal error!</string>
 	<string name="Updage">Update</string>
+	<string name="BluetoothName">Name:</string>
+	<string name="BluetoothAddress">Address:</string>
 </resources>
